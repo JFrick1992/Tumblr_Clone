@@ -31,7 +31,7 @@ Please list two areas of the assignment you'd like to **discuss further with you
 
 Here's a walkthrough of implemented user stories:
 
-![Imgur](https://i.imgur.com/3K5IdgK.gif)
+Here is the link (it would not properly display like in previous assignments): https://i.imgur.com/3K5IdgK.gifv
 
 GIF created with [LiceCap](http://www.cockos.com/licecap/).
 
