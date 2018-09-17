@@ -10,6 +10,8 @@ import UIKit
 
 class imageCell: UITableViewCell {
 
+
+    @IBOutlet weak var tumblrImageView: UIImageView!
     override func awakeFromNib() {
         super.awakeFromNib()
         // Initialization code
