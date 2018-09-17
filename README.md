@@ -2,7 +2,7 @@
 
 Tumblr Clone is a photo browsing app using the [The Tumblr API](https://www.tumblr.com/docs/en/api/v2#posts).
 
-Time spent: **X** hours spent in total
+Time spent: 4 hours spent in total
 
 ## User Stories
 
@@ -20,27 +20,29 @@ The following **stretch** user stories are implemented:
 The following **additional** user stories are implemented:
 
 - [ ] List anything else that you can get done to improve the app functionality! (+1-3pts)
+-[X] Added pull to refresh
 
 Please list two areas of the assignment you'd like to **discuss further with your peers** during the next class (examples include better ways to implement something, how to extend your app in certain ways, etc):
 
-1.
-2.
+1. In the slides for the program, it sugests gathering all the "posts" from the JSON object and then getting the image link from posts in the cell creation. I could not get the photos to display properly with the way the directions said and changed it to what I believe is a more optimal solution. The soultion is to not have an array of posts, but just go and get the image links and store them in an array of Strings then just looped through all the links in cell creation. 
+2. This part expands on part one. That is that in parsing the JSON, access all the main data in the posts and store them in a post object. This will allow with more flexibility in data use because not all the info has to be tied to a single table cell.
 
 ## Video Walkthrough
 
 Here's a walkthrough of implemented user stories:
 
-<img src='http://i.imgur.com/link/to/your/gif/file.gif' title='Video Walkthrough' width='' alt='Video Walkthrough' />
+![](https://i.imgur.com/1CQMh6N.gif)
 
 GIF created with [LiceCap](http://www.cockos.com/licecap/).
 
 ## Notes
 
 Describe any challenges encountered while building the app.
+One problem was that I tried to do the cell generation (pre grabbing the JSON) off stored knowledge from flix to challenge what I know and missed the line delcaring the ViewController as the data source. This caused some frustration until I realized what was going on. The second would be from part one of the discuss further your piers section which caused annoying formatting problems.
 
 ## License
 
-    Copyright [yyyy] [name of copyright owner]
+    Copyright [2018] [Jacob Frick]
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.

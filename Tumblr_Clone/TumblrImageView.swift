@@ -9,7 +9,6 @@
 import UIKit
 import AlamofireImage
 class TumblrImageView: UIViewController, UITableViewDataSource {
-    var posts : [[String: Any]] = []
     var images = [String]()
     var refreshControl: UIRefreshControl!
     
@@ -46,8 +45,8 @@ class TumblrImageView: UIViewController, UITableViewDataSource {
             } else if let data = data {
                 let dataDictionary = try! JSONSerialization.jsonObject(with: data, options: []) as! [String: Any]
                 let resonseDictionary = dataDictionary["response"] as! [String: Any]
-                self.posts = resonseDictionary["posts"] as! [[String: Any]]
-                for post in self.posts {
+                let posts = resonseDictionary["posts"] as! [[String: Any]]
+                for post in posts {
                     let photos = post["photos"] as! [[String: Any]]
                     for photo in photos {
                         let originalDic = photo["original_size"] as! [String: Any]
@@ -63,7 +62,7 @@ class TumblrImageView: UIViewController, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return posts.count
+        return images.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
