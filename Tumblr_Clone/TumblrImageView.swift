@@ -8,8 +8,15 @@
 
 import UIKit
 import AlamofireImage
-class TumblrImageView: UIViewController, UITableViewDataSource {
-    var images = [String]()
+class TumblrImageView: UIViewController, UITableViewDataSource, UITableViewDelegate {
+    struct Post {
+        let id : Int?
+        let imageLink : String?
+        let caption : String?
+        let timestamp : Date?
+    }
+    
+    var posts = [Post]()
     var refreshControl: UIRefreshControl!
     
     @IBOutlet weak var tableView: UITableView!
@@ -20,6 +27,7 @@ class TumblrImageView: UIViewController, UITableViewDataSource {
         tableView.insertSubview(refreshControl, at: 0)
 
         tableView.dataSource = self
+        tableView.delegate = self
         tableView.rowHeight = 250
 
         self.fetchPosts()
@@ -33,6 +41,14 @@ class TumblrImageView: UIViewController, UITableViewDataSource {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        let photoViewController = segue.destination as! PhotoDetailsViewController
+        let vc = sender as! imageCell
+        let indexPath = tableView.indexPath(for: vc)!
+        let link = posts[indexPath.section].imageLink!
+        photoViewController.link = link
+    }
+    
     
     func fetchPosts() {
         let urlString = "https://api.tumblr.com/v2/blog/humansofnewyork.tumblr.com/posts/photo?api_key=Q6vHoaVm5L1u2ZAW1fqv3Jw48gFzYVg9P0vH0VHl3GVy6quoGV"
@@ -45,14 +61,17 @@ class TumblrImageView: UIViewController, UITableViewDataSource {
             } else if let data = data {
                 let dataDictionary = try! JSONSerialization.jsonObject(with: data, options: []) as! [String: Any]
                 let resonseDictionary = dataDictionary["response"] as! [String: Any]
-                let posts = resonseDictionary["posts"] as! [[String: Any]]
-                for post in posts {
-                    let photos = post["photos"] as! [[String: Any]]
-                    for photo in photos {
-                        let originalDic = photo["original_size"] as! [String: Any]
-                        let url = originalDic["url"] as! String
-                        self.images.append(url)
-                    }
+                let postsDic = resonseDictionary["posts"] as! [[String: Any]]
+                for tempPost in postsDic {
+                    let photos = tempPost["photos"] as! [[String: Any]]
+                    let photo = photos[0]
+                    let orgSizeDic = photo["original_size"] as! [String: Any]
+                    let url = orgSizeDic["url"] as! String
+                    let id = tempPost["id"] as? Int
+                    let caption = tempPost["caption"] as! String
+                    let timestamp = tempPost["timestamp"] as? Double
+                    let date = Date(timeIntervalSince1970: timestamp!)
+                    self.posts.append(Post(id: id, imageLink: url, caption: caption, timestamp: date))
                 }
                 self.refreshControl.endRefreshing()
                 self.tableView.reloadData()
@@ -61,13 +80,46 @@ class TumblrImageView: UIViewController, UITableViewDataSource {
         task.resume()
     }
     
+    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        let headerView = UIView()
+        headerView.backgroundColor = UIColor(white: 1, alpha: 0.9)
+        
+        let profileView = UIImageView(frame: CGRect(x: 10, y: 5, width: 30, height: 30))
+        profileView.clipsToBounds = true
+        profileView.layer.cornerRadius = 15;
+        profileView.layer.borderColor = UIColor(white: 0.7, alpha: 0.8).cgColor
+        profileView.layer.borderWidth = 1;
+        
+        // Set the avatar
+        profileView.af_setImage(withURL: URL(string: "https://api.tumblr.com/v2/blog/humansofnewyork.tumblr.com/avatar")!)
+        headerView.addSubview(profileView)
+        
+        let label = UILabel(frame: CGRect(x:55, y: 5, width: 300, height: 30))
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateStyle = DateFormatter.Style.short
+        dateFormatter.timeStyle = DateFormatter.Style.short
+        label.text = dateFormatter.string(from: posts[section].timestamp!)
+        headerView.addSubview(label)
+        // Add a UILabel for the date here
+        // Use the section number to get the right URL
+        // let label = ...
+        
+        return headerView
+    }
+    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        return 40
+    }
+
+    func numberOfSections(in tableView: UITableView) -> Int {
+        return posts.count
+    }
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return images.count
+        return 1
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "imageCell", for: indexPath) as! imageCell
-        let urlString = self.images[indexPath.row]
+        let urlString = self.posts[indexPath.section].imageLink!
         let url = URL(string: urlString)!
         
         cell.tumblrImageView.af_setImage(withURL: url)
