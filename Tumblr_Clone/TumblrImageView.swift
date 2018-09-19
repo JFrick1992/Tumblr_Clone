@@ -8,34 +8,34 @@
 
 import UIKit
 import AlamofireImage
-class TumblrImageView: UIViewController, UITableViewDataSource, UITableViewDelegate {
+class TumblrImageView: UIViewController, UITableViewDataSource, UITableViewDelegate, UIScrollViewDelegate {
+    
+    var currentOffSet = 0
+    var posts = [Post]()
+    var isMoreDataLoading = false
+    var refreshControl: UIRefreshControl!
+    @IBOutlet weak var tableView: UITableView!
+    
     struct Post {
         let id : Int?
         let imageLink : String?
         let caption : String?
         let timestamp : Date?
     }
-    
-    var posts = [Post]()
-    var refreshControl: UIRefreshControl!
-    
-    @IBOutlet weak var tableView: UITableView!
     override func viewDidLoad() {
         super.viewDidLoad()
         refreshControl = UIRefreshControl()
         refreshControl.addTarget(self, action: #selector(TumblrImageView.didPullToRefresh(_:)), for: .valueChanged)
         tableView.insertSubview(refreshControl, at: 0)
-
         tableView.dataSource = self
         tableView.delegate = self
         tableView.rowHeight = 250
-
-        self.fetchPosts()
-
-        // Do any additional setup after loading the view.
+        self.fetchPosts(currentOffSet)
     }
     @objc func didPullToRefresh(_ refreshControl: UIRefreshControl) {
-        fetchPosts()
+        posts = [Post]()
+        currentOffSet = 0
+        fetchPosts(currentOffSet)
     }
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
@@ -50,8 +50,8 @@ class TumblrImageView: UIViewController, UITableViewDataSource, UITableViewDeleg
     }
     
     
-    func fetchPosts() {
-        let urlString = "https://api.tumblr.com/v2/blog/humansofnewyork.tumblr.com/posts/photo?api_key=Q6vHoaVm5L1u2ZAW1fqv3Jw48gFzYVg9P0vH0VHl3GVy6quoGV"
+    func fetchPosts(_ offset: Int) {
+        let urlString = "https://api.tumblr.com/v2/blog/humansofnewyork.tumblr.com/posts/photo?api_key=Q6vHoaVm5L1u2ZAW1fqv3Jw48gFzYVg9P0vH0VHl3GVy6quoGV&offset=\(offset)"
         let url = URL(string: urlString)!
         let request = URLRequest(url: url, cachePolicy: .reloadIgnoringLocalCacheData, timeoutInterval: 10)
         let session = URLSession(configuration: .default, delegate: nil, delegateQueue: OperationQueue.main)
@@ -74,36 +74,42 @@ class TumblrImageView: UIViewController, UITableViewDataSource, UITableViewDeleg
                     self.posts.append(Post(id: id, imageLink: url, caption: caption, timestamp: date))
                 }
                 self.refreshControl.endRefreshing()
+                self.isMoreDataLoading = false
                 self.tableView.reloadData()
             }
         }
         task.resume()
     }
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        if (!isMoreDataLoading) {
+            // Calculate the position of one screen length before the bottom of the results
+            let scrollViewContentHeight = tableView.contentSize.height
+            let scrollOffsetThreshold = scrollViewContentHeight - tableView.bounds.size.height
+            // When the user has scrolled past the threshold, start requesting
+            if(scrollView.contentOffset.y > scrollOffsetThreshold && tableView.isDragging) {
+                isMoreDataLoading = true
+                currentOffSet += 20
+                fetchPosts(currentOffSet)
+            }
+        }
+    }
     
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         let headerView = UIView()
         headerView.backgroundColor = UIColor(white: 1, alpha: 0.9)
-        
         let profileView = UIImageView(frame: CGRect(x: 10, y: 5, width: 30, height: 30))
         profileView.clipsToBounds = true
         profileView.layer.cornerRadius = 15;
         profileView.layer.borderColor = UIColor(white: 0.7, alpha: 0.8).cgColor
         profileView.layer.borderWidth = 1;
-        
-        // Set the avatar
         profileView.af_setImage(withURL: URL(string: "https://api.tumblr.com/v2/blog/humansofnewyork.tumblr.com/avatar")!)
         headerView.addSubview(profileView)
-        
         let label = UILabel(frame: CGRect(x:55, y: 5, width: 300, height: 30))
         let dateFormatter = DateFormatter()
         dateFormatter.dateStyle = DateFormatter.Style.short
         dateFormatter.timeStyle = DateFormatter.Style.short
         label.text = dateFormatter.string(from: posts[section].timestamp!)
         headerView.addSubview(label)
-        // Add a UILabel for the date here
-        // Use the section number to get the right URL
-        // let label = ...
-        
         return headerView
     }
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
