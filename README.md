@@ -61,11 +61,11 @@ One problem was that I tried to do the cell generation (pre grabbing the JSON) o
 
 
 
-# Lab 2 - *Name of App Here*
+# Lab 2 - Tumblr Clone
 
-**Name of your app** is a photo browsing app app using the [The Tumblr API](https://www.tumblr.com/docs/en/api/v2#posts).
+Tumblr CLone is a photo browsing app app using the [The Tumblr API](https://www.tumblr.com/docs/en/api/v2#posts).
 
-Time spent: **X** hours spent in total
+Time spent: 3 hours spent in total
 
 ## User Stories
 
