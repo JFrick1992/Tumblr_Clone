@@ -92,7 +92,7 @@ Please list two areas of the assignment you'd like to **discuss further with you
 
 Here's a walkthrough of implemented user stories:
 
-[](https://i.imgur.com/7LjshDW.gif)
+![](https://github.com/JFrick1992/Tumblr_Clone/blob/master/Demo/tumblrClone.gif)
 
 GIF created with [LiceCap](http://www.cockos.com/licecap/).
 
