@@ -10,15 +10,17 @@ import UIKit
 import AlamofireImage
 class PhotoDetailsViewController: UIViewController {
     
+   
+    @IBOutlet weak var captionTextView: UITextView!
     @IBOutlet weak var imageView: UIImageView!
-    var link: String!
     var post: TumblrImageView.Post!
     override func viewDidLoad() {
         super.viewDidLoad()
-        let url = URL(string: link)!
+        let url = URL(string: post.imageLink!)!
         imageView.af_setImage(withURL: url)
+        captionTextView.text = post.caption
+        
     }
-
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.

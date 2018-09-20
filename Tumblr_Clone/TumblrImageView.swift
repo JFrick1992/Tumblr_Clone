@@ -45,8 +45,7 @@ class TumblrImageView: UIViewController, UITableViewDataSource, UITableViewDeleg
         let photoViewController = segue.destination as! PhotoDetailsViewController
         let vc = sender as! imageCell
         let indexPath = tableView.indexPath(for: vc)!
-        let link = posts[indexPath.section].imageLink!
-        photoViewController.link = link
+        photoViewController.post = posts[indexPath.section]
     }
     
     
@@ -68,7 +67,10 @@ class TumblrImageView: UIViewController, UITableViewDataSource, UITableViewDeleg
                     let orgSizeDic = photo["original_size"] as! [String: Any]
                     let url = orgSizeDic["url"] as! String
                     let id = tempPost["id"] as? Int
-                    let caption = tempPost["caption"] as! String
+                    var caption = tempPost["caption"] as! String
+                    caption = caption.replacingOccurrences(of: "<p>\n", with: "")
+                    caption = caption.replacingOccurrences(of: "<br/>", with: "")
+                    caption = caption.replacingOccurrences(of: "</p>", with: "")
                     let timestamp = tempPost["timestamp"] as? Double
                     let date = Date(timeIntervalSince1970: timestamp!)
                     self.posts.append(Post(id: id, imageLink: url, caption: caption, timestamp: date))
